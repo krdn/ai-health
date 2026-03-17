@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum CalendarType {
+  SOLAR
+  LUNAR
+}
+
+model Family {
+  id         String   @id @default(cuid())
+  name       String
+  inviteCode String   @unique
+  createdAt  DateTime @default(now())
+  members    User[]
+}
+
+model User {
+  id                String        @id @default(cuid())
+  email             String        @unique
+  password          String
+  name              String
+  role              Role          @default(MEMBER)
+  birthDate         DateTime?
+  birthTime         String?
+  birthCalendarType CalendarType? @default(SOLAR)
+  gender            Gender?
+  familyId          String
+  family            Family        @relation(fields: [familyId], references: [id])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}

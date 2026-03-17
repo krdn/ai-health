@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aihealth-postgres
+    environment:
+      POSTGRES_USER: aihealth
+      POSTGRES_PASSWORD: aihealth
+      POSTGRES_DB: aihealth
+    ports:
+      - "5435:5432"
+    volumes:
+      - aihealth-pgdata:/var/lib/postgresql/data
+
+volumes:
+  aihealth-pgdata:

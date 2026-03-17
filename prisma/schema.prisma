@@ -22,6 +22,21 @@ enum CalendarType {
   LUNAR
 }
 
+enum InsightType {
+  HEALTH
+  SAJU
+  CHECKUP
+  SUPPLEMENT_REC
+  SIDE_EFFECT
+  RISK_ASSESSMENT
+  EXERCISE_RX
+  NUTRITION_ANALYSIS
+  CORRELATION
+  SEASONAL
+  FAMILY_PATTERN
+  COMBINED
+}
+
 enum HealthRecordType {
   BODY_MEASURE
   VITAL_SIGN
@@ -55,6 +70,7 @@ model User {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   healthRecords     HealthRecord[]
+  insights          InsightHistory[]
 }
 
 model HealthRecord {
@@ -69,4 +85,19 @@ model HealthRecord {
 
   @@index([userId, type])
   @@index([userId, recordedAt])
+}
+
+model InsightHistory {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  type      InsightType
+  prompt    String
+  response  String
+  fromDate  DateTime?
+  toDate    DateTime?
+  createdAt DateTime    @default(now())
+
+  @@index([userId, type])
+  @@index([userId, createdAt])
 }

@@ -150,7 +150,7 @@
 |------|------|------|
 | id | String (cuid) | PK |
 | userId | String | FK → User |
-| type | Enum (HEALTH, SAJU, COMBINED, CHECKUP) | 분석 유형 |
+| type | Enum (HEALTH, SAJU, CHECKUP, SUPPLEMENT_REC, SIDE_EFFECT, COMBINED) | 분석 유형 |
 | prompt | String | AI에 전송한 프롬프트 |
 | response | String | AI 응답 (자연어 인사이트) |
 | fromDate | DateTime? | 분석 시작일 (HEALTH, COMBINED) |
@@ -223,6 +223,48 @@
 - 기본 분석 기간: 30일 (사용자가 기간 조정 가능)
 - 비용 관리: 일일 요청 횟수 제한 (가족 단위, 10회/일 — InsightHistory.createdAt 기준 count)
 
+### 보조제 추천 분석
+
+```
+보조제 추천 요청
+  → 사용자의 건강 데이터 + 검진 결과 + 현재 복용약 목록 수집
+  → Zhipu AI에 전달 (건강 전문가 + 영양학 시스템 프롬프트)
+  → 건강 상태 기반 부족 영양소 파악
+  → 현재 복용 중인 보조제와 중복/과다 여부 확인
+  → 추천 보조제 목록 + 근거 반환
+  → InsightHistory에 저장 (type: SUPPLEMENT_REC)
+```
+
+AI 분석 내용:
+- **부족 영양소 분석**: 검진 수치(헤모글로빈 부족 → 철분, 비타민D 수치 낮음 → 비타민D 등)
+- **체질 기반 추천**: 사주 오행 균형과 연계한 보조제 추천
+- **복용 중 보조제 평가**: 현재 복용량 적정 여부, 불필요한 보조제 알림
+- **주의사항**: 처방약과의 상호작용 경고 (예: 혈전용해제 + 오메가3)
+
+### 처방약 부작용 분석
+
+```
+부작용 분석 요청
+  → 사용자의 복용약 목록 (PRESCRIPTION) 수집
+  → 최근 건강 데이터 변화 추세 조회
+  → Zhipu AI에 전달 (약학 전문가 시스템 프롬프트)
+  → 분석 결과 반환
+  → InsightHistory에 저장 (type: SIDE_EFFECT)
+```
+
+AI 분석 내용:
+- **알려진 부작용 안내**: 각 처방약의 주요 부작용 목록
+- **약물 간 상호작용**: 복수 약물 병용 시 위험한 조합 경고
+- **건강 데이터 연관 분석**: 약 복용 시작 후 건강 수치 변화와 부작용 연관성 탐지
+  - 예: "스타틴 복용 시작(2026-02) 이후 간 수치(AST/ALT) 상승 추세 감지"
+- **처방약-보조제 충돌**: 처방약과 건강보조제 간 상호작용 경고
+  - 예: "와파린 복용 중 비타민K 보조제는 약효를 감소시킬 수 있습니다"
+
+### 면책 조항
+> 본 시스템의 AI 분석은 참고용이며 의학적 진단이나 처방을 대체하지 않습니다. 약물 변경이나 건강 관련 결정은 반드시 의료 전문가와 상담하세요.
+
+모든 AI 인사이트 응답 하단에 위 면책 조항을 자동 표시.
+
 ## 6. 건강검진 PDF 분석
 
 ### 업로드 및 분석 흐름
@@ -286,12 +328,14 @@
 ### InsightHistory 확장
 | 필드 | 변경 |
 |------|------|
-| type | Enum: HEALTH, SAJU, CHECKUP, COMBINED |
+| type | Enum: HEALTH, SAJU, CHECKUP, SUPPLEMENT_REC, SIDE_EFFECT, COMBINED |
 
 - `HEALTH`: 건강 데이터 기반 분석
 - `SAJU`: 사주 단독 분석
 - `CHECKUP`: 건강검진 PDF 기반 분석
-- `COMBINED`: 건강 데이터 + 검진 결과 + 복용약 + 사주 종합 분석
+- `SUPPLEMENT_REC`: 건강 상태 기반 보조제 추천
+- `SIDE_EFFECT`: 처방약 부작용 및 약물 상호작용 분석
+- `COMBINED`: 모든 데이터 종합 분석
 
 ## 8. 페이지 구성
 

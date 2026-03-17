@@ -2,3 +2,7 @@ export { HEALTH_SYSTEM_PROMPT, buildHealthAnalysisPrompt } from './health-analys
 export { SUPPLEMENT_SYSTEM_PROMPT } from './supplement-rec'
 export { SIDE_EFFECT_SYSTEM_PROMPT } from './side-effect'
 export { SAJU_SYSTEM_PROMPT } from './saju-analysis'
+export { RISK_ASSESSMENT_SYSTEM_PROMPT } from './risk-assessment'
+export { EXERCISE_RX_SYSTEM_PROMPT } from './exercise-rx'
+export { NUTRITION_ANALYSIS_SYSTEM_PROMPT } from './nutrition-analysis'
+export { CORRELATION_SYSTEM_PROMPT } from './correlation'

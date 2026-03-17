@@ -71,6 +71,7 @@ model User {
   updatedAt         DateTime      @updatedAt
   healthRecords     HealthRecord[]
   insights          InsightHistory[]
+  checkups          CheckupRecord[]
 }
 
 model HealthRecord {
@@ -100,4 +101,20 @@ model InsightHistory {
 
   @@index([userId, type])
   @@index([userId, createdAt])
+}
+
+model CheckupRecord {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  fileName      String
+  filePath      String
+  fileSize      Int
+  checkupDate   DateTime
+  institution   String?
+  extractedData Json?
+  summary       String?
+  createdAt     DateTime @default(now())
+
+  @@index([userId, checkupDate])
 }

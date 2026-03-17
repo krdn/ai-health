@@ -2,7 +2,7 @@
 
 ## 개요
 
-가족/소규모 그룹이 건강 데이터(신체 측정, 바이탈 사인, 활동/생활습관)를 수동 입력하고, Zhipu AI를 통해 자연어 인사이트를 받는 웹 애플리케이션. 생년월일시 기반 사주(四柱) 분석을 통해 체질별 건강 취약점과 맞춤 양생법도 제공.
+가족/소규모 그룹이 건강 데이터(신체 측정, 바이탈 사인, 활동/생활습관)를 수동 입력하고, Zhipu AI를 통해 자연어 인사이트를 받는 웹 애플리케이션. 건강검진 PDF 문서를 업로드하여 AI가 검진 결과를 분석하고, 생년월일시 기반 사주(四柱) 분석을 통해 체질별 건강 취약점과 맞춤 양생법도 제공.
 
 ## 기술 스택
 
@@ -15,6 +15,8 @@
 | 인증 | NextAuth.js (Credentials Provider, JWT) |
 | AI | Zhipu AI (GLM-4-Plus 또는 최신 가용 모델) |
 | UI | Tailwind CSS + shadcn/ui |
+| PDF 파싱 | pdf-parse |
+| 파일 저장 | 로컬 볼륨 (Docker volume) |
 | 유효성 검증 | Zod |
 | 단위 체계 | Metric (kg, cm, °C, mmHg) |
 | 패키지 매니저 | pnpm |
@@ -29,10 +31,12 @@
                 │   ├── 대시보드 (가족 전체 요약)
                 │   ├── 건강 데이터 입력/조회
                 │   ├── AI 인사이트
+                │   ├── 건강검진 PDF 업로드/분석
                 │   └── 사주 건강 분석
                 ├── API Routes
                 │   ├── /api/auth/* (NextAuth)
                 │   ├── /api/health/* (건강 데이터 CRUD)
+                │   ├── /api/checkup/* (건강검진 PDF 업로드/분석)
                 │   ├── /api/insight/* (Zhipu AI 분석 요청)
                 │   └── /api/saju/* (사주 건강 분석)
                 ├── Prisma ORM → PostgreSQL
@@ -72,7 +76,7 @@
 |------|------|------|
 | id | String (cuid) | PK |
 | userId | String | FK → User |
-| type | Enum (BODY_MEASURE, VITAL_SIGN, ACTIVITY) | 기록 카테고리 |
+| type | Enum (BODY_MEASURE, VITAL_SIGN, ACTIVITY, MEDICATION) | 기록 카테고리 |
 | data | Json | 건강 데이터 (유연한 JSON 구조) |
 | recordedAt | DateTime | 측정 일시 |
 | createdAt | DateTime | 입력 일시 |
@@ -94,12 +98,59 @@
 { "steps": 8500, "sleepHours": 7.5, "exercise": "달리기", "duration": 30 }
 ```
 
+**MEDICATION (복용약/건강보조제):**
+```json
+{
+  "name": "오메가3",
+  "category": "SUPPLEMENT",
+  "dosage": "1000mg",
+  "frequency": "1일 1회",
+  "startDate": "2026-01-15",
+  "endDate": null,
+  "notes": "식후 복용"
+}
+```
+
+#### MEDICATION category 값
+| 값 | 설명 |
+|------|------|
+| PRESCRIPTION | 처방약 |
+| OTC | 일반의약품 (비처방) |
+| SUPPLEMENT | 건강보조제/영양제 |
+
+### CheckupRecord
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| id | String (cuid) | PK |
+| userId | String | FK → User |
+| fileName | String | 원본 파일명 |
+| filePath | String | 서버 저장 경로 |
+| fileSize | Int | 파일 크기 (bytes) |
+| checkupDate | DateTime | 검진 날짜 |
+| institution | String? | 검진 기관명 |
+| extractedData | Json? | PDF에서 추출한 구조화된 검진 데이터 |
+| summary | String? | AI가 생성한 검진 결과 요약 |
+| createdAt | DateTime | 업로드 일시 |
+
+#### extractedData 예시
+```json
+{
+  "general": { "height": 175, "weight": 72.5, "bmi": 23.7, "waist": 82 },
+  "bloodTest": { "hemoglobin": 15.2, "glucose": 95, "cholesterol": 185, "hdl": 55, "ldl": 110, "triglyceride": 120 },
+  "bloodPressure": { "systolic": 120, "diastolic": 78 },
+  "liver": { "ast": 25, "alt": 22, "ggt": 35 },
+  "kidney": { "creatinine": 0.9, "gfr": 95 },
+  "findings": ["경미한 지방간", "정상 혈압"],
+  "recommendations": ["체중 관리 권장", "6개월 후 재검"]
+}
+```
+
 ### InsightHistory
 | 필드 | 타입 | 설명 |
 |------|------|------|
 | id | String (cuid) | PK |
 | userId | String | FK → User |
-| type | Enum (HEALTH, SAJU, COMBINED) | 분석 유형 |
+| type | Enum (HEALTH, SAJU, COMBINED, CHECKUP) | 분석 유형 |
 | prompt | String | AI에 전송한 프롬프트 |
 | response | String | AI 응답 (자연어 인사이트) |
 | fromDate | DateTime? | 분석 시작일 (HEALTH, COMBINED) |
@@ -166,12 +217,44 @@
   → 사용자에게 표시
 ```
 
-- 프롬프트 전략: 건강 데이터를 표 형태로 정리 + 건강 전문가 시스템 프롬프트
+- 프롬프트 전략: 건강 데이터 + 복용약/보조제 + 검진 결과를 표 형태로 정리 + 건강 전문가 시스템 프롬프트
+- 복용약 교차 분석: 약물 간 상호작용, 영양제 과다 복용 주의 등 AI가 분석
 - 분석 범위: 개인별 또는 가족 전체 비교 분석 가능
 - 기본 분석 기간: 30일 (사용자가 기간 조정 가능)
 - 비용 관리: 일일 요청 횟수 제한 (가족 단위, 10회/일 — InsightHistory.createdAt 기준 count)
 
-## 6. 사주(四柱) 건강 분석
+## 6. 건강검진 PDF 분석
+
+### 업로드 및 분석 흐름
+
+```
+사용자 PDF 업로드
+  → 파일 유효성 검증 (PDF, 최대 20MB)
+  → 로컬 볼륨에 저장 (uploads/<userId>/<timestamp>-<filename>)
+  → pdf-parse로 텍스트 추출
+  → Zhipu AI에 추출 텍스트 전달하여 구조화된 데이터 추출
+  → extractedData (Json) 및 summary 저장
+  → 사용자에게 구조화된 검진 결과 및 AI 요약 표시
+```
+
+### 파일 관리
+- **저장 위치**: Docker volume (`/app/uploads`)으로 마운트
+- **파일 제한**: PDF만 허용, 최대 20MB
+- **경로 구조**: `uploads/<userId>/<timestamp>-<originalName>.pdf`
+- **보안**: 파일 경로는 DB에만 저장, API를 통해서만 접근 (직접 URL 노출 없음)
+
+### AI 분석 전략
+1. **텍스트 추출**: pdf-parse로 PDF 전체 텍스트 추출
+2. **구조화 요청**: Zhipu AI에 "건강검진 결과 문서를 분석하여 JSON 형태로 구조화해주세요" 프롬프트
+3. **요약 생성**: 주요 소견, 이상 수치, 권고사항을 자연어로 요약
+4. **연간 비교**: 여러 검진 기록이 있을 경우 연도별 추세 분석 가능
+
+### InsightHistory 연동
+- 검진 결과 기반 AI 분석 요청 시 `type: CHECKUP` 으로 저장
+- 건강 데이터 + 검진 결과 + 사주를 결합한 종합 분석도 가능
+
+## 7. 사주(四柱) 건강 분석
+
 
 ### 개요
 사용자의 생년월일시를 기반으로 사주팔자를 산출하고, 오행(五行) 균형에 따른 체질별 건강 취약점과 양생법을 AI가 분석하여 제공.
@@ -203,13 +286,14 @@
 ### InsightHistory 확장
 | 필드 | 변경 |
 |------|------|
-| type | Enum 추가: HEALTH, SAJU, COMBINED |
+| type | Enum: HEALTH, SAJU, CHECKUP, COMBINED |
 
-- `HEALTH`: 기존 건강 데이터 기반 분석
+- `HEALTH`: 건강 데이터 기반 분석
 - `SAJU`: 사주 단독 분석
-- `COMBINED`: 사주 + 건강 데이터 결합 분석
+- `CHECKUP`: 건강검진 PDF 기반 분석
+- `COMBINED`: 건강 데이터 + 검진 결과 + 복용약 + 사주 종합 분석
 
-## 7. 페이지 구성
+## 8. 페이지 구성
 
 
 | 페이지 | 기능 |
@@ -219,18 +303,20 @@
 | `/dashboard` | 가족 전체 요약 (최근 기록, 간단 통계) |
 | `/records/new` | 건강 데이터 입력 (타입 선택 → 항목 입력) |
 | `/records` | 본인 건강 기록 목록/필터 |
+| `/medications` | 복용약/건강보조제 관리 (추가, 목록, 복용 중/중단) |
+| `/checkup` | 건강검진 PDF 업로드, 검진 기록 목록, AI 분석 결과 조회 |
 | `/insight` | AI 건강 분석 요청 및 과거 인사이트 조회 |
 | `/saju` | 사주 건강 분석 (단독/건강 데이터 결합) |
 | `/settings` | 프로필 수정, 가족 관리 (ADMIN) |
 
-## 8. 에러 처리 및 보안
+## 9. 에러 처리 및 보안
 
 - Zhipu AI API 호출 실패 시: "분석을 일시적으로 수행할 수 없습니다" 메시지 반환
 - API 키는 환경 변수(ZHIPU_API_KEY)로 관리
 - 건강 데이터 접근: 같은 가족 구성원만 조회 가능 (API Route에서 familyId 검증)
 - 입력 유효성: Zod 스키마로 API 입력 검증
 
-## 9. 배포 구성
+## 10. 배포 구성
 
 - Docker Compose: Next.js 앱 + 새 PostgreSQL 인스턴스 (포트 5435)
 - 포트: 3200 (기존 서비스 3100, 5678, 8081, 8082, 8088과 충돌 없음)

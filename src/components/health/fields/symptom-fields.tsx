@@ -8,6 +8,8 @@ interface FieldProps {
   onChange: (data: Record<string, unknown>) => void
 }
 
+const val = (v: unknown) => (v != null ? String(v) : '')
+
 export function SymptomFields({ data, onChange }: FieldProps) {
   const update = (key: string, value: string) => {
     onChange({ ...data, [key]: value ? parseFloat(value) : undefined })
@@ -26,7 +28,7 @@ export function SymptomFields({ data, onChange }: FieldProps) {
           type="text"
           required
           placeholder="두통, 복통 등"
-          value={(data.symptom as string) ?? ''}
+          value={val(data.symptom)}
           onChange={(e) => updateStr('symptom', e.target.value)}
         />
       </div>
@@ -39,7 +41,7 @@ export function SymptomFields({ data, onChange }: FieldProps) {
           min={1}
           max={10}
           placeholder="5"
-          value={data.severity ?? ''}
+          value={val(data.severity)}
           onChange={(e) => update('severity', e.target.value)}
         />
       </div>
@@ -49,7 +51,7 @@ export function SymptomFields({ data, onChange }: FieldProps) {
           id="location"
           type="text"
           placeholder="머리, 배 등"
-          value={(data.location as string) ?? ''}
+          value={val(data.location)}
           onChange={(e) => updateStr('location', e.target.value)}
         />
       </div>
@@ -61,7 +63,7 @@ export function SymptomFields({ data, onChange }: FieldProps) {
           min={0}
           max={10080}
           placeholder="30"
-          value={data.duration ?? ''}
+          value={val(data.duration)}
           onChange={(e) => update('duration', e.target.value)}
         />
       </div>
@@ -71,7 +73,7 @@ export function SymptomFields({ data, onChange }: FieldProps) {
           id="trigger"
           type="text"
           placeholder="스트레스, 음식 등"
-          value={(data.trigger as string) ?? ''}
+          value={val(data.trigger)}
           onChange={(e) => updateStr('trigger', e.target.value)}
         />
       </div>
@@ -81,7 +83,7 @@ export function SymptomFields({ data, onChange }: FieldProps) {
           id="sym-notes"
           className="w-full min-h-[80px] rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           placeholder="증상에 대한 추가 설명"
-          value={(data.notes as string) ?? ''}
+          value={val(data.notes)}
           onChange={(e) => updateStr('notes', e.target.value)}
         />
       </div>

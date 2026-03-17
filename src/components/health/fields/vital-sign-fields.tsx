@@ -8,6 +8,8 @@ interface FieldProps {
   onChange: (data: Record<string, unknown>) => void
 }
 
+const val = (v: unknown) => (v != null ? String(v) : '')
+
 export function VitalSignFields({ data, onChange }: FieldProps) {
   const update = (key: string, value: string) => {
     onChange({ ...data, [key]: value ? parseFloat(value) : undefined })
@@ -23,7 +25,7 @@ export function VitalSignFields({ data, onChange }: FieldProps) {
           min={60}
           max={250}
           placeholder="120"
-          value={data.systolic ?? ''}
+          value={val(data.systolic)}
           onChange={(e) => update('systolic', e.target.value)}
         />
       </div>
@@ -35,7 +37,7 @@ export function VitalSignFields({ data, onChange }: FieldProps) {
           min={30}
           max={150}
           placeholder="80"
-          value={data.diastolic ?? ''}
+          value={val(data.diastolic)}
           onChange={(e) => update('diastolic', e.target.value)}
         />
       </div>
@@ -47,7 +49,7 @@ export function VitalSignFields({ data, onChange }: FieldProps) {
           min={30}
           max={220}
           placeholder="72"
-          value={data.heartRate ?? ''}
+          value={val(data.heartRate)}
           onChange={(e) => update('heartRate', e.target.value)}
         />
       </div>
@@ -59,7 +61,7 @@ export function VitalSignFields({ data, onChange }: FieldProps) {
           min={20}
           max={600}
           placeholder="100"
-          value={data.bloodSugar ?? ''}
+          value={val(data.bloodSugar)}
           onChange={(e) => update('bloodSugar', e.target.value)}
         />
       </div>
@@ -72,7 +74,7 @@ export function VitalSignFields({ data, onChange }: FieldProps) {
           max={42}
           step={0.1}
           placeholder="36.5"
-          value={data.temperature ?? ''}
+          value={val(data.temperature)}
           onChange={(e) => update('temperature', e.target.value)}
         />
       </div>

@@ -8,6 +8,9 @@ interface FieldProps {
   onChange: (data: Record<string, unknown>) => void
 }
 
+// unknown -> string | number for input value
+const val = (v: unknown) => (v != null ? String(v) : '')
+
 export function BodyMeasureFields({ data, onChange }: FieldProps) {
   const update = (key: string, value: string) => {
     onChange({ ...data, [key]: value ? parseFloat(value) : undefined })
@@ -24,7 +27,7 @@ export function BodyMeasureFields({ data, onChange }: FieldProps) {
           max={300}
           step={0.1}
           placeholder="70.5"
-          value={data.weight ?? ''}
+          value={val(data.weight)}
           onChange={(e) => update('weight', e.target.value)}
         />
       </div>
@@ -37,7 +40,7 @@ export function BodyMeasureFields({ data, onChange }: FieldProps) {
           max={250}
           step={0.1}
           placeholder="175"
-          value={data.height ?? ''}
+          value={val(data.height)}
           onChange={(e) => update('height', e.target.value)}
         />
       </div>
@@ -50,7 +53,7 @@ export function BodyMeasureFields({ data, onChange }: FieldProps) {
           max={60}
           step={0.1}
           placeholder="20"
-          value={data.bodyFat ?? ''}
+          value={val(data.bodyFat)}
           onChange={(e) => update('bodyFat', e.target.value)}
         />
       </div>

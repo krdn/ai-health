@@ -8,6 +8,8 @@ interface FieldProps {
   onChange: (data: Record<string, unknown>) => void
 }
 
+const val = (v: unknown) => (v != null ? String(v) : '')
+
 export function MedicationFields({ data, onChange }: FieldProps) {
   const updateStr = (key: string, value: string) => {
     onChange({ ...data, [key]: value || undefined })
@@ -22,7 +24,7 @@ export function MedicationFields({ data, onChange }: FieldProps) {
           type="text"
           required
           placeholder="타이레놀"
-          value={(data.name as string) ?? ''}
+          value={val(data.name)}
           onChange={(e) => updateStr('name', e.target.value)}
         />
       </div>
@@ -32,7 +34,7 @@ export function MedicationFields({ data, onChange }: FieldProps) {
           id="category"
           required
           className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-          value={(data.category as string) ?? ''}
+          value={val(data.category)}
           onChange={(e) => updateStr('category', e.target.value)}
         >
           <option value="">선택</option>
@@ -47,7 +49,7 @@ export function MedicationFields({ data, onChange }: FieldProps) {
           id="dosage"
           type="text"
           placeholder="500mg"
-          value={(data.dosage as string) ?? ''}
+          value={val(data.dosage)}
           onChange={(e) => updateStr('dosage', e.target.value)}
         />
       </div>
@@ -57,7 +59,7 @@ export function MedicationFields({ data, onChange }: FieldProps) {
           id="frequency"
           type="text"
           placeholder="하루 3회"
-          value={(data.frequency as string) ?? ''}
+          value={val(data.frequency)}
           onChange={(e) => updateStr('frequency', e.target.value)}
         />
       </div>
@@ -66,7 +68,7 @@ export function MedicationFields({ data, onChange }: FieldProps) {
         <Input
           id="startDate"
           type="date"
-          value={(data.startDate as string) ?? ''}
+          value={val(data.startDate)}
           onChange={(e) => updateStr('startDate', e.target.value)}
         />
       </div>
@@ -75,7 +77,7 @@ export function MedicationFields({ data, onChange }: FieldProps) {
         <Input
           id="endDate"
           type="date"
-          value={(data.endDate as string) ?? ''}
+          value={val(data.endDate)}
           onChange={(e) => updateStr('endDate', e.target.value)}
         />
       </div>
@@ -85,7 +87,7 @@ export function MedicationFields({ data, onChange }: FieldProps) {
           id="med-notes"
           className="w-full min-h-[80px] rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           placeholder="복용 시 주의사항 등"
-          value={(data.notes as string) ?? ''}
+          value={val(data.notes)}
           onChange={(e) => updateStr('notes', e.target.value)}
         />
       </div>

@@ -8,6 +8,8 @@ interface FieldProps {
   onChange: (data: Record<string, unknown>) => void
 }
 
+const val = (v: unknown) => (v != null ? String(v) : '')
+
 export function ActivityFields({ data, onChange }: FieldProps) {
   const update = (key: string, value: string) => {
     onChange({ ...data, [key]: value ? parseFloat(value) : undefined })
@@ -27,7 +29,7 @@ export function ActivityFields({ data, onChange }: FieldProps) {
           min={0}
           max={100000}
           placeholder="10000"
-          value={data.steps ?? ''}
+          value={val(data.steps)}
           onChange={(e) => update('steps', e.target.value)}
         />
       </div>
@@ -40,7 +42,7 @@ export function ActivityFields({ data, onChange }: FieldProps) {
           max={24}
           step={0.5}
           placeholder="7.5"
-          value={data.sleepHours ?? ''}
+          value={val(data.sleepHours)}
           onChange={(e) => update('sleepHours', e.target.value)}
         />
       </div>
@@ -51,7 +53,7 @@ export function ActivityFields({ data, onChange }: FieldProps) {
           type="text"
           maxLength={50}
           placeholder="달리기, 수영 등"
-          value={(data.exercise as string) ?? ''}
+          value={val(data.exercise)}
           onChange={(e) => updateStr('exercise', e.target.value)}
         />
       </div>
@@ -63,7 +65,7 @@ export function ActivityFields({ data, onChange }: FieldProps) {
           min={0}
           max={1440}
           placeholder="30"
-          value={data.duration ?? ''}
+          value={val(data.duration)}
           onChange={(e) => update('duration', e.target.value)}
         />
       </div>
@@ -72,7 +74,7 @@ export function ActivityFields({ data, onChange }: FieldProps) {
         <select
           id="intensity"
           className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-          value={(data.intensity as string) ?? ''}
+          value={val(data.intensity)}
           onChange={(e) => updateStr('intensity', e.target.value)}
         >
           <option value="">선택</option>
@@ -88,7 +90,7 @@ export function ActivityFields({ data, onChange }: FieldProps) {
           id="heartRateAvg"
           type="number"
           placeholder="130"
-          value={data.heartRateAvg ?? ''}
+          value={val(data.heartRateAvg)}
           onChange={(e) => update('heartRateAvg', e.target.value)}
         />
       </div>
@@ -98,7 +100,7 @@ export function ActivityFields({ data, onChange }: FieldProps) {
           id="heartRateMax"
           type="number"
           placeholder="160"
-          value={data.heartRateMax ?? ''}
+          value={val(data.heartRateMax)}
           onChange={(e) => update('heartRateMax', e.target.value)}
         />
       </div>
@@ -108,7 +110,7 @@ export function ActivityFields({ data, onChange }: FieldProps) {
           id="caloriesBurned"
           type="number"
           placeholder="300"
-          value={data.caloriesBurned ?? ''}
+          value={val(data.caloriesBurned)}
           onChange={(e) => update('caloriesBurned', e.target.value)}
         />
       </div>
@@ -120,7 +122,7 @@ export function ActivityFields({ data, onChange }: FieldProps) {
           min={1}
           max={10}
           placeholder="5"
-          value={data.rpe ?? ''}
+          value={val(data.rpe)}
           onChange={(e) => update('rpe', e.target.value)}
         />
       </div>

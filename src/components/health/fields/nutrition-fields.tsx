@@ -8,6 +8,8 @@ interface FieldProps {
   onChange: (data: Record<string, unknown>) => void
 }
 
+const val = (v: unknown) => (v != null ? String(v) : '')
+
 export function NutritionFields({ data, onChange }: FieldProps) {
   const update = (key: string, value: string) => {
     onChange({ ...data, [key]: value ? parseFloat(value) : undefined })
@@ -25,7 +27,7 @@ export function NutritionFields({ data, onChange }: FieldProps) {
           id="meal"
           required
           className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-          value={(data.meal as string) ?? ''}
+          value={val(data.meal)}
           onChange={(e) => updateStr('meal', e.target.value)}
         >
           <option value="">선택</option>
@@ -43,7 +45,7 @@ export function NutritionFields({ data, onChange }: FieldProps) {
           min={0}
           max={5000}
           placeholder="500"
-          value={data.calories ?? ''}
+          value={val(data.calories)}
           onChange={(e) => update('calories', e.target.value)}
         />
       </div>
@@ -53,7 +55,7 @@ export function NutritionFields({ data, onChange }: FieldProps) {
           id="description"
           className="w-full min-h-[80px] rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           placeholder="먹은 음식을 적어주세요"
-          value={(data.description as string) ?? ''}
+          value={val(data.description)}
           onChange={(e) => updateStr('description', e.target.value)}
         />
       </div>
@@ -63,7 +65,7 @@ export function NutritionFields({ data, onChange }: FieldProps) {
           id="protein"
           type="number"
           placeholder="30"
-          value={data.protein ?? ''}
+          value={val(data.protein)}
           onChange={(e) => update('protein', e.target.value)}
         />
       </div>
@@ -73,7 +75,7 @@ export function NutritionFields({ data, onChange }: FieldProps) {
           id="carbs"
           type="number"
           placeholder="60"
-          value={data.carbs ?? ''}
+          value={val(data.carbs)}
           onChange={(e) => update('carbs', e.target.value)}
         />
       </div>
@@ -83,7 +85,7 @@ export function NutritionFields({ data, onChange }: FieldProps) {
           id="fat"
           type="number"
           placeholder="15"
-          value={data.fat ?? ''}
+          value={val(data.fat)}
           onChange={(e) => update('fat', e.target.value)}
         />
       </div>
@@ -93,7 +95,7 @@ export function NutritionFields({ data, onChange }: FieldProps) {
           id="sodium"
           type="number"
           placeholder="500"
-          value={data.sodium ?? ''}
+          value={val(data.sodium)}
           onChange={(e) => update('sodium', e.target.value)}
         />
       </div>
@@ -103,7 +105,7 @@ export function NutritionFields({ data, onChange }: FieldProps) {
           id="water"
           type="number"
           placeholder="250"
-          value={data.water ?? ''}
+          value={val(data.water)}
           onChange={(e) => update('water', e.target.value)}
         />
       </div>

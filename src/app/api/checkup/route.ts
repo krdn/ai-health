@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
-import pdf from 'pdf-parse'
+import { PDFParse } from 'pdf-parse'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { chatWithZhipu } from '@/lib/zhipu'
@@ -67,8 +67,10 @@ export async function POST(request: NextRequest) {
     // PDF 텍스트 추출
     let pdfText: string
     try {
-      const pdfData = await pdf(buffer)
-      pdfText = pdfData.text
+      const parser = new PDFParse({ data: buffer })
+      const result = await parser.getText()
+      pdfText = result.text
+      await parser.destroy()
     } catch {
       return NextResponse.json(
         { error: 'PDF 텍스트 추출에 실패했습니다. 올바른 PDF인지 확인해주세요.' },

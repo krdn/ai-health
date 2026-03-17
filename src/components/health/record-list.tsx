@@ -25,12 +25,17 @@ interface Pagination {
   totalPages: number
 }
 
-export function RecordList() {
+interface RecordListProps {
+  defaultType?: HealthRecordType
+  hideFilter?: boolean
+}
+
+export function RecordList({ defaultType, hideFilter }: RecordListProps = {}) {
   const [records, setRecords] = useState<HealthRecord[]>([])
   const [pagination, setPagination] = useState<Pagination>({
     page: 1, limit: 20, total: 0, totalPages: 0,
   })
-  const [typeFilter, setTypeFilter] = useState<HealthRecordType | null>(null)
+  const [typeFilter, setTypeFilter] = useState<HealthRecordType | null>(defaultType ?? null)
   const [loading, setLoading] = useState(true)
 
   const fetchRecords = useCallback(async (page: number, type: HealthRecordType | null) => {
@@ -67,25 +72,27 @@ export function RecordList() {
   return (
     <div className="space-y-4">
       {/* 타입 필터 */}
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant={typeFilter === null ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => handleFilterChange(null)}
-        >
-          전체
-        </Button>
-        {typeKeys.map((key) => (
+      {!hideFilter && (
+        <div className="flex flex-wrap gap-2">
           <Button
-            key={key}
-            variant={typeFilter === key ? 'default' : 'outline'}
+            variant={typeFilter === null ? 'default' : 'outline'}
             size="sm"
-            onClick={() => handleFilterChange(key)}
+            onClick={() => handleFilterChange(null)}
           >
-            {healthRecordTypeLabels[key]}
+            전체
           </Button>
-        ))}
-      </div>
+          {typeKeys.map((key) => (
+            <Button
+              key={key}
+              variant={typeFilter === key ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleFilterChange(key)}
+            >
+              {healthRecordTypeLabels[key]}
+            </Button>
+          ))}
+        </div>
+      )}
 
       {/* 기록 목록 */}
       {loading ? (

@@ -6,12 +6,42 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-type InsightType = 'HEALTH' | 'SUPPLEMENT_REC' | 'SIDE_EFFECT'
+type InsightType =
+  | 'HEALTH'
+  | 'SUPPLEMENT_REC'
+  | 'SIDE_EFFECT'
+  | 'RISK_ASSESSMENT'
+  | 'EXERCISE_RX'
+  | 'NUTRITION_ANALYSIS'
+  | 'CORRELATION'
+  | 'SEASONAL'
+  | 'FAMILY_PATTERN'
+  | 'COMBINED'
 
 const insightTypeLabels: Record<InsightType, string> = {
   HEALTH: '건강 분석',
   SUPPLEMENT_REC: '보조제 추천',
   SIDE_EFFECT: '부작용 분석',
+  RISK_ASSESSMENT: '질환 위험도 예측',
+  EXERCISE_RX: '맞춤형 운동 처방',
+  NUTRITION_ANALYSIS: '영양 분석',
+  CORRELATION: '상관관계 분석',
+  SEASONAL: '계절 건강 알림',
+  FAMILY_PATTERN: '가족 건강 패턴',
+  COMBINED: '종합 분석',
+}
+
+const insightTypeDescriptions: Record<InsightType, string> = {
+  HEALTH: '전반적인 건강 상태를 종합 분석합니다.',
+  SUPPLEMENT_REC: '건강 데이터 기반 맞춤형 보충제를 추천합니다.',
+  SIDE_EFFECT: '복약 기록과 증상의 연관성을 분석합니다.',
+  RISK_ASSESSMENT: '주요 질환 카테고리별 위험도를 평가합니다.',
+  EXERCISE_RX: '건강 상태에 맞는 주간 운동 프로그램을 설계합니다.',
+  NUTRITION_ANALYSIS: '식단의 영양 균형과 약물-음식 상호작용을 분석합니다.',
+  CORRELATION: '건강 기록 간의 시간적 패턴과 상관관계를 찾습니다.',
+  SEASONAL: '현재 계절에 맞는 건강 관리 방안을 제안합니다.',
+  FAMILY_PATTERN: '가족 구성원 간의 건강 패턴을 비교 분석합니다.',
+  COMBINED: '위험도, 영양, 운동, 계절, 상관관계를 종합 분석합니다.',
 }
 
 const insightTypeKeys = Object.keys(insightTypeLabels) as InsightType[]
@@ -93,6 +123,11 @@ export function InsightRequest() {
             ))}
           </select>
         </div>
+
+        {/* 선택된 타입 설명 */}
+        <p className="text-xs text-muted-foreground">
+          {insightTypeDescriptions[type]}
+        </p>
 
         {/* 날짜 범위 */}
         <div className="grid grid-cols-2 gap-4">

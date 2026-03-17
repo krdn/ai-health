@@ -2,7 +2,7 @@
 
 ## 개요
 
-가족/소규모 그룹이 건강 데이터(신체 측정, 바이탈 사인, 활동/생활습관)를 수동 입력하고, Zhipu AI를 통해 자연어 인사이트를 받는 웹 애플리케이션.
+가족/소규모 그룹이 건강 데이터(신체 측정, 바이탈 사인, 활동/생활습관)를 수동 입력하고, Zhipu AI를 통해 자연어 인사이트를 받는 웹 애플리케이션. 생년월일시 기반 사주(四柱) 분석을 통해 체질별 건강 취약점과 맞춤 양생법도 제공.
 
 ## 기술 스택
 
@@ -28,11 +28,13 @@
                 │   ├── 로그인/회원가입
                 │   ├── 대시보드 (가족 전체 요약)
                 │   ├── 건강 데이터 입력/조회
-                │   └── AI 인사이트
+                │   ├── AI 인사이트
+                │   └── 사주 건강 분석
                 ├── API Routes
                 │   ├── /api/auth/* (NextAuth)
                 │   ├── /api/health/* (건강 데이터 CRUD)
-                │   └── /api/insight/* (Zhipu AI 분석 요청)
+                │   ├── /api/insight/* (Zhipu AI 분석 요청)
+                │   └── /api/saju/* (사주 건강 분석)
                 ├── Prisma ORM → PostgreSQL
                 └── Zhipu AI API
 ```
@@ -52,6 +54,8 @@
 | name | String | 표시 이름 |
 | role | Enum (ADMIN, MEMBER) | 가족 내 역할 |
 | birthDate | DateTime? | 생년월일 |
+| birthTime | String? | 출생 시각 (HH:mm, 사주 분석용) |
+| birthCalendarType | Enum? (SOLAR, LUNAR) | 양력/음력 구분 (기본: SOLAR) |
 | gender | Enum? (MALE, FEMALE) | 성별 |
 | familyId | String | FK → Family |
 
@@ -95,10 +99,11 @@
 |------|------|------|
 | id | String (cuid) | PK |
 | userId | String | FK → User |
+| type | Enum (HEALTH, SAJU, COMBINED) | 분석 유형 |
 | prompt | String | AI에 전송한 프롬프트 |
 | response | String | AI 응답 (자연어 인사이트) |
-| fromDate | DateTime | 분석 시작일 |
-| toDate | DateTime | 분석 종료일 |
+| fromDate | DateTime? | 분석 시작일 (HEALTH, COMBINED) |
+| toDate | DateTime? | 분석 종료일 (HEALTH, COMBINED) |
 | createdAt | DateTime | 생성일 |
 
 ## 3. 데이터 유효성 범위
@@ -166,7 +171,46 @@
 - 기본 분석 기간: 30일 (사용자가 기간 조정 가능)
 - 비용 관리: 일일 요청 횟수 제한 (가족 단위, 10회/일 — InsightHistory.createdAt 기준 count)
 
-## 6. 페이지 구성
+## 6. 사주(四柱) 건강 분석
+
+### 개요
+사용자의 생년월일시를 기반으로 사주팔자를 산출하고, 오행(五行) 균형에 따른 체질별 건강 취약점과 양생법을 AI가 분석하여 제공.
+
+### 분석 흐름
+
+```
+사주 분석 요청
+  → 사용자 birthDate + birthTime + birthCalendarType 확인
+  → 음력인 경우 양력으로 변환
+  → 사주팔자(년주, 월주, 일주, 시주) 산출
+  → 오행 분포 계산 (목, 화, 토, 금, 수)
+  → Zhipu AI에 사주 정보 + 건강 데이터 전달
+  → 체질별 건강 인사이트 응답
+  → InsightHistory에 저장 (type: SAJU)
+```
+
+### 사주 산출 로직
+- 만세력 라이브러리 활용하여 천간(天干)/지지(地支) 계산
+- 음력↔양력 변환 지원
+- 서버 사이드에서 계산 후 AI 프롬프트에 포함
+
+### AI 프롬프트 전략
+사주 정보와 실제 건강 데이터를 결합하여 분석:
+- **사주 단독 분석**: 오행 균형, 체질 유형, 취약 장기, 계절별 건강 주의점
+- **사주 + 건강 데이터 결합 분석**: 실제 건강 기록과 사주 체질을 교차 분석하여 맞춤 조언
+  - 예: "수(水) 기운이 약한 체질인데, 최근 혈압이 상승 추세입니다. 신장 건강에 주의하세요."
+
+### InsightHistory 확장
+| 필드 | 변경 |
+|------|------|
+| type | Enum 추가: HEALTH, SAJU, COMBINED |
+
+- `HEALTH`: 기존 건강 데이터 기반 분석
+- `SAJU`: 사주 단독 분석
+- `COMBINED`: 사주 + 건강 데이터 결합 분석
+
+## 7. 페이지 구성
+
 
 | 페이지 | 기능 |
 |--------|------|
@@ -175,17 +219,18 @@
 | `/dashboard` | 가족 전체 요약 (최근 기록, 간단 통계) |
 | `/records/new` | 건강 데이터 입력 (타입 선택 → 항목 입력) |
 | `/records` | 본인 건강 기록 목록/필터 |
-| `/insight` | AI 분석 요청 및 과거 인사이트 조회 |
+| `/insight` | AI 건강 분석 요청 및 과거 인사이트 조회 |
+| `/saju` | 사주 건강 분석 (단독/건강 데이터 결합) |
 | `/settings` | 프로필 수정, 가족 관리 (ADMIN) |
 
-## 7. 에러 처리 및 보안
+## 8. 에러 처리 및 보안
 
 - Zhipu AI API 호출 실패 시: "분석을 일시적으로 수행할 수 없습니다" 메시지 반환
 - API 키는 환경 변수(ZHIPU_API_KEY)로 관리
 - 건강 데이터 접근: 같은 가족 구성원만 조회 가능 (API Route에서 familyId 검증)
 - 입력 유효성: Zod 스키마로 API 입력 검증
 
-## 8. 배포 구성
+## 9. 배포 구성
 
 - Docker Compose: Next.js 앱 + 새 PostgreSQL 인스턴스 (포트 5435)
 - 포트: 3200 (기존 서비스 3100, 5678, 8081, 8082, 8088과 충돌 없음)

@@ -47,6 +47,23 @@ enum HealthRecordType {
   MENTAL
 }
 
+enum GoalCategory {
+  WEIGHT_LOSS
+  WEIGHT_GAIN
+  BLOOD_PRESSURE
+  BLOOD_SUGAR
+  EXERCISE_FREQ
+  SLEEP
+  STEPS
+  CUSTOM
+}
+
+enum GoalStatus {
+  ACTIVE
+  ACHIEVED
+  ABANDONED
+}
+
 model Family {
   id         String   @id @default(cuid())
   name       String
@@ -72,6 +89,7 @@ model User {
   healthRecords     HealthRecord[]
   insights          InsightHistory[]
   checkups          CheckupRecord[]
+  goals             HealthGoal[]
 }
 
 model HealthRecord {
@@ -117,4 +135,22 @@ model CheckupRecord {
   createdAt     DateTime @default(now())
 
   @@index([userId, checkupDate])
+}
+
+model HealthGoal {
+  id           String       @id @default(cuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  category     GoalCategory
+  targetValue  Float
+  currentValue Float?
+  unit         String
+  description  String?
+  startDate    DateTime     @default(now())
+  targetDate   DateTime?
+  status       GoalStatus   @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([userId, status])
 }

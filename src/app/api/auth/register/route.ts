@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { hashPassword, generateInviteCode } from '@/lib/utils'
+import { prisma } from '@/shared/lib/prisma'
+import { hashPassword } from '@/shared/lib/password'
+import { generateInviteCode } from '@/shared/lib/invite-code'
 
 const registerSchema = z.discriminatedUnion('action', [
   z.object({

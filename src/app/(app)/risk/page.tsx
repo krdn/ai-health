@@ -1,4 +1,4 @@
-import { RiskDashboard } from '@/components/risk/risk-dashboard'
+import { RiskDashboard } from '@/features/risk'
 
 export default function RiskPage() {
   return (

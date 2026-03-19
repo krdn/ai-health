@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
-import { chatWithZhipu, DISCLAIMER } from '@/lib/zhipu'
+import { prisma } from '@/shared/lib/prisma'
+import { auth } from '@/shared/lib/auth'
+import { chatWithZhipu, DISCLAIMER } from '@/shared/api/zhipu'
 import {
   HEALTH_SYSTEM_PROMPT,
-  buildHealthAnalysisPrompt,
   SUPPLEMENT_SYSTEM_PROMPT,
   SIDE_EFFECT_SYSTEM_PROMPT,
   RISK_ASSESSMENT_SYSTEM_PROMPT,
   EXERCISE_RX_SYSTEM_PROMPT,
   NUTRITION_ANALYSIS_SYSTEM_PROMPT,
   CORRELATION_SYSTEM_PROMPT,
-} from '@/lib/prompts'
+} from '@/features/insight/lib/prompts'
+import { buildHealthAnalysisPrompt } from '@/shared/lib/health-prompt'
 import type { InsightType, HealthRecordType } from '@/generated/prisma/client'
 
 // 인사이트 타입별 시스템 프롬프트 매핑

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
-import { chatWithZhipu, DISCLAIMER } from '@/lib/zhipu'
-import { SAJU_SYSTEM_PROMPT } from '@/lib/prompts'
-import { buildHealthAnalysisPrompt } from '@/lib/prompts'
-import { calculateSaju, formatSajuForPrompt } from '@/lib/saju'
+import { prisma } from '@/shared/lib/prisma'
+import { auth } from '@/shared/lib/auth'
+import { chatWithZhipu, DISCLAIMER } from '@/shared/api/zhipu'
+import { SAJU_SYSTEM_PROMPT } from '@/features/saju/lib/prompts/saju-analysis'
+import { buildHealthAnalysisPrompt } from '@/shared/lib/health-prompt'
+import { calculateSaju, formatSajuForPrompt } from '@/features/saju/lib/saju'
 import type { InsightType } from '@/generated/prisma/client'
 
 // POST /api/saju - 사주 건강 분석 (AI)

@@ -1,5 +1,4 @@
-import { InsightRequest } from '@/components/insight/insight-request'
-import { InsightHistory } from '@/components/insight/insight-history'
+import { InsightRequest, InsightHistory } from '@/features/insight'
 
 export default function InsightPage() {
   return (

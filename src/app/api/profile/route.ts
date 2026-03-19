@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { prisma } from '@/shared/lib/prisma'
+import { auth } from '@/shared/lib/auth'
 
 // GET /api/profile - 프로필 조회
 export async function GET() {

@@ -1,5 +1,5 @@
-import { CheckupUpload } from '@/components/checkup/checkup-upload'
-import { CheckupList } from '@/components/checkup/checkup-list'
+import { CheckupUpload } from '@/features/checkup'
+import { CheckupList } from '@/features/checkup'
 
 export default function CheckupPage() {
   return (

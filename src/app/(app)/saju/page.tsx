@@ -1,4 +1,4 @@
-import { SajuAnalysis } from '@/components/saju/saju-analysis'
+import { SajuAnalysis } from '@/features/saju'
 
 export default function SajuPage() {
   return (

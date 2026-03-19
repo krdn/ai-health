@@ -1,6 +1,6 @@
-import { NutritionSummary } from '@/components/nutrition/nutrition-summary'
-import { NutritionForm } from '@/components/nutrition/nutrition-form'
-import { RecordList } from '@/components/health/record-list'
+import { NutritionSummary } from '@/features/nutrition'
+import { NutritionForm } from '@/features/nutrition'
+import { RecordList } from '@/features/health-record'
 
 export default function NutritionPage() {
   return (

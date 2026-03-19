@@ -1,5 +1,5 @@
-import { FamilySettings } from '@/components/family/family-settings'
-import { ProfileForm } from '@/components/settings/profile-form'
+import { FamilySettings } from '@/features/family'
+import { ProfileForm } from '@/features/settings'
 
 export default function SettingsPage() {
   return (

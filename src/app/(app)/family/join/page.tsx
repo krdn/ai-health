@@ -1,4 +1,4 @@
-import { JoinFamilyForm } from '@/components/family/join-form'
+import { JoinFamilyForm } from '@/features/family'
 
 export default function JoinFamilyPage() {
   return (

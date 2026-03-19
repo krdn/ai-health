@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { RecordList } from '@/components/health/record-list'
+import { Button } from '@/shared/ui/button'
+import { RecordList } from '@/features/health-record'
 
 export default function RecordsPage() {
   return (

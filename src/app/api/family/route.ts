@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import { generateInviteCode } from '@/lib/utils'
+import { auth } from '@/shared/lib/auth'
+import { prisma } from '@/shared/lib/prisma'
+import { generateInviteCode } from '@/shared/lib/invite-code'
 
 export async function GET() {
   const session = await auth()

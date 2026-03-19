@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { unlink } from 'fs/promises'
 import path from 'path'
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { prisma } from '@/shared/lib/prisma'
+import { auth } from '@/shared/lib/auth'
 
 // GET /api/checkup/[id] - 건강검진 기록 상세 조회
 export async function GET(

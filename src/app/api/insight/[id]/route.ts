@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { prisma } from '@/shared/lib/prisma'
+import { auth } from '@/shared/lib/auth'
 
 // GET /api/insight/[id] - 단일 인사이트 조회 (가족 구성원 접근 가능)
 export async function GET(

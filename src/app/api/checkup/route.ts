@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { PDFParse } from 'pdf-parse'
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
-import { chatWithZhipu } from '@/lib/zhipu'
+import { prisma } from '@/shared/lib/prisma'
+import { auth } from '@/shared/lib/auth'
+import { chatWithZhipu } from '@/shared/api/zhipu'
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
 

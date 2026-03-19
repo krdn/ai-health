@@ -1,4 +1,4 @@
-import { HealthTimeline } from '@/components/timeline/health-timeline'
+import { HealthTimeline } from '@/features/timeline'
 
 export default function TimelinePage() {
   return (

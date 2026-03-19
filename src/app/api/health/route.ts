@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
-import { healthRecordCreateSchema } from '@/lib/validations/health-record'
+import { prisma } from '@/shared/lib/prisma'
+import { auth } from '@/shared/lib/auth'
+import { healthRecordCreateSchema } from '@/features/health-record/model/validation'
 
 // GET /api/health - 건강 기록 목록 조회 (페이지네이션, 타입 필터, 가족 접근)
 export async function GET(request: NextRequest) {

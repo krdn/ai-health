@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { MedicationForm } from '@/components/medications/medication-form'
-import { MedicationList } from '@/components/medications/medication-list'
+import { Button } from '@/shared/ui/button'
+import { MedicationForm } from '@/features/medications'
+import { MedicationList } from '@/features/medications'
 
 export default function MedicationsPage() {
   const [showForm, setShowForm] = useState(false)

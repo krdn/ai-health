@@ -1,4 +1,4 @@
-import { RecordForm } from '@/components/health/record-form'
+import { RecordForm } from '@/features/health-record'
 
 export default function NewRecordPage() {
   return (

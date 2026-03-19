@@ -1,6 +1,6 @@
-import { ExerciseSummary } from '@/components/exercise/exercise-summary'
-import { ExerciseForm } from '@/components/exercise/exercise-form'
-import { RecordList } from '@/components/health/record-list'
+import { ExerciseSummary } from '@/features/exercise'
+import { ExerciseForm } from '@/features/exercise'
+import { RecordList } from '@/features/health-record'
 
 export default function ExercisePage() {
   return (

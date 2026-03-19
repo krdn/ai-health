@@ -1,5 +1,5 @@
-import { GoalForm } from '@/components/goals/goal-form'
-import { GoalList } from '@/components/goals/goal-list'
+import { GoalForm } from '@/features/goals'
+import { GoalList } from '@/features/goals'
 
 export default function GoalsPage() {
   return (

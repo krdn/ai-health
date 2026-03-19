@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { prisma } from '@/shared/lib/prisma'
+import { auth } from '@/shared/lib/auth'
 
 const goalUpdateSchema = z.object({
   status: z.enum(['ACTIVE', 'ACHIEVED', 'ABANDONED']).optional(),

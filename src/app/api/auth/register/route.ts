@@ -36,18 +36,22 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hashPassword(data.password)
 
     if (data.action === 'create') {
-      const family = await prisma.family.create({
-        data: { name: data.familyName, inviteCode: generateInviteCode() },
-      })
+      const { family, user } = await prisma.$transaction(async (tx) => {
+        const family = await tx.family.create({
+          data: { name: data.familyName, inviteCode: generateInviteCode() },
+        })
 
-      const user = await prisma.user.create({
-        data: {
-          email: data.email,
-          password: hashedPassword,
-          name: data.name,
-          role: 'ADMIN',
-          familyId: family.id,
-        },
+        const user = await tx.user.create({
+          data: {
+            email: data.email,
+            password: hashedPassword,
+            name: data.name,
+            role: 'ADMIN',
+            familyId: family.id,
+          },
+        })
+
+        return { family, user }
       })
 
       return NextResponse.json({

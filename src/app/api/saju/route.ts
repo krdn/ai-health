@@ -5,6 +5,7 @@ import { chatWithZhipu, DISCLAIMER } from '@/shared/api/zhipu'
 import { SAJU_SYSTEM_PROMPT } from '@/features/saju/lib/prompts/saju-analysis'
 import { buildHealthAnalysisPrompt } from '@/shared/lib/health-prompt'
 import { calculateSaju, formatSajuForPrompt } from '@/features/saju/lib/saju'
+import { DAILY_LIMIT, getTodayStartKST } from '@/shared/config/constants'
 import type { InsightType } from '@/generated/prisma/client'
 
 // POST /api/saju - 사주 건강 분석 (AI)
@@ -42,8 +43,7 @@ export async function POST(request: NextRequest) {
     })
     const familyMemberIds = familyMembers.map((m) => m.id)
 
-    const todayStart = new Date()
-    todayStart.setHours(0, 0, 0, 0)
+    const todayStart = getTodayStartKST()
 
     const todayCount = await prisma.insightHistory.count({
       where: {
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    if (todayCount >= 10) {
+    if (todayCount >= DAILY_LIMIT) {
       return NextResponse.json(
         { error: '일일 분석 횟수(10회)를 초과했습니다' },
         { status: 429 }

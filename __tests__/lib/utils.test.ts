@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { generateInviteCode, hashPassword, verifyPassword } from '@/lib/utils'
+import { generateInviteCode } from '@/shared/lib/invite-code'
+import { hashPassword, verifyPassword } from '@/shared/lib/password'
 
 describe('generateInviteCode', () => {
   it('8자리 영숫자 코드를 생성한다', () => {

@@ -1,15 +1,5 @@
 import type { HealthRecord } from '@/generated/prisma/client'
-
-// 건강 기록 타입별 한국어 라벨
-const typeLabels: Record<string, string> = {
-  BODY_MEASURE: '신체 측정',
-  VITAL_SIGN: '활력 징후',
-  ACTIVITY: '활동',
-  MEDICATION: '복약',
-  NUTRITION: '영양',
-  SYMPTOM: '증상',
-  MENTAL: '정신 건강',
-}
+import { healthRecordTypeLabels } from '@/features/health-record/model/types'
 
 // 건강 기록 데이터를 AI 프롬프트용 텍스트로 변환
 export function buildHealthAnalysisPrompt(
@@ -22,7 +12,7 @@ export function buildHealthAnalysisPrompt(
 
   const grouped: Record<string, { recordedAt: Date; data: unknown }[]> = {}
   for (const record of records) {
-    const label = typeLabels[record.type] || record.type
+    const label = healthRecordTypeLabels[record.type] || record.type
     if (!grouped[label]) grouped[label] = []
     grouped[label].push({
       recordedAt: record.recordedAt,

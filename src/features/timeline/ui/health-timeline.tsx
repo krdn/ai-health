@@ -103,7 +103,7 @@ export function HealthTimeline() {
   const fetchRecords = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/health-records?limit=200')
+      const res = await fetch('/api/health?limit=200')
       if (!res.ok) throw new Error()
       const body = await res.json()
       setRecords(body.records || [])

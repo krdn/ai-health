@@ -12,6 +12,7 @@ import {
   CORRELATION_SYSTEM_PROMPT,
 } from '@/features/insight/lib/prompts'
 import { buildHealthAnalysisPrompt } from '@/shared/lib/health-prompt'
+import { DAILY_LIMIT, getTodayStartKST } from '@/shared/config/constants'
 import type { InsightType, HealthRecordType } from '@/generated/prisma/client'
 
 // 인사이트 타입별 시스템 프롬프트 매핑
@@ -58,8 +59,6 @@ function getSeasonInfo(): { season: string; month: number; advice: string } {
   }
 }
 
-const DAILY_LIMIT = 10
-
 // POST /api/insight - AI 인사이트 생성
 export async function POST(request: NextRequest) {
   try {
@@ -75,8 +74,7 @@ export async function POST(request: NextRequest) {
     })
     const familyMemberIds = familyMembers.map((m) => m.id)
 
-    const todayStart = new Date()
-    todayStart.setHours(0, 0, 0, 0)
+    const todayStart = getTodayStartKST()
 
     const todayCount = await prisma.insightHistory.count({
       where: {

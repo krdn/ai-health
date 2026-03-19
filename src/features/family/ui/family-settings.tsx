@@ -18,34 +18,60 @@ export function FamilySettings() {
   const [family, setFamily] = useState<FamilyData | null>(null)
   const isAdmin = session?.user?.role === 'ADMIN'
 
+  const [error, setError] = useState<string | null>(null)
+
   useEffect(() => {
-    fetch('/api/family').then(r => r.json()).then(setFamily)
+    fetch('/api/family')
+      .then(r => {
+        if (!r.ok) throw new Error()
+        return r.json()
+      })
+      .then(setFamily)
+      .catch(() => setError('가족 정보를 불러올 수 없습니다'))
   }, [])
 
   async function regenerateCode() {
-    const res = await fetch('/api/family', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'regenerateCode' }),
-    })
-    const data = await res.json()
-    if (family) setFamily({ ...family, inviteCode: data.inviteCode })
+    try {
+      setError(null)
+      const res = await fetch('/api/family', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'regenerateCode' }),
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      if (family) setFamily({ ...family, inviteCode: data.inviteCode })
+    } catch {
+      setError('초대 코드 재생성에 실패했습니다')
+    }
   }
 
   async function removeMember(memberId: string) {
     if (!confirm('정말 이 구성원을 탈퇴시키겠습니까?')) return
-    await fetch('/api/family', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'removeMember', memberId }),
-    })
-    if (family) setFamily({ ...family, members: family.members.filter(m => m.id !== memberId) })
+    try {
+      setError(null)
+      const res = await fetch('/api/family', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'removeMember', memberId }),
+      })
+      if (!res.ok) throw new Error()
+      if (family) setFamily({ ...family, members: family.members.filter(m => m.id !== memberId) })
+    } catch {
+      setError('구성원 탈퇴 처리에 실패했습니다')
+    }
   }
 
+  if (error && !family) return <p className="text-destructive">{error}</p>
   if (!family) return <p>로딩 중...</p>
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
       <Card>
         <CardHeader><CardTitle>가족 정보</CardTitle></CardHeader>
         <CardContent className="space-y-4">

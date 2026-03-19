@@ -3,6 +3,9 @@ import { z } from 'zod'
 import { prisma } from '@/shared/lib/prisma'
 import { auth } from '@/shared/lib/auth'
 import { healthRecordCreateSchema } from '@/features/health-record/model/validation'
+import type { HealthRecordType } from '@/generated/prisma/client'
+
+const validTypes: HealthRecordType[] = ['BODY_MEASURE', 'VITAL_SIGN', 'ACTIVITY', 'MEDICATION', 'NUTRITION', 'SYMPTOM', 'MENTAL']
 
 // GET /api/health - 건강 기록 목록 조회 (페이지네이션, 타입 필터, 가족 접근)
 export async function GET(request: NextRequest) {
@@ -36,9 +39,13 @@ export async function GET(request: NextRequest) {
       targetUserIds = familyMemberIds
     }
 
+    if (type && !validTypes.includes(type as HealthRecordType)) {
+      return NextResponse.json({ error: '유효하지 않은 기록 타입입니다' }, { status: 400 })
+    }
+
     const where = {
       userId: { in: targetUserIds },
-      ...(type ? { type: type as never } : {}),
+      ...(type ? { type: type as HealthRecordType } : {}),
     }
 
     const [records, total] = await Promise.all([

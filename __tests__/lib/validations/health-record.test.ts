@@ -9,7 +9,7 @@ import {
   mentalSchema,
   healthRecordCreateSchema,
   healthRecordTypeLabels,
-} from '@/lib/validations/health-record'
+} from '@/features/health-record/model/validation'
 
 describe('bodyMeasureSchema', () => {
   it('유효한 데이터를 통과시킨다', () => {

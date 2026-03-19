@@ -1,7 +1,2 @@
-'use client'
-
-import { SessionProvider } from 'next-auth/react'
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>
-}
+// 브릿지: Phase 7에서 삭제
+export { Providers } from '@/shared/providers/providers'

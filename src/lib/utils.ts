@@ -1,22 +1,4 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import bcrypt from 'bcryptjs'
-import { randomBytes } from 'crypto'
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
-export function generateInviteCode(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-  const bytes = randomBytes(8)
-  return Array.from(bytes).map(b => chars[b % chars.length]).join('')
-}
-
-export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, 12)
-}
-
-export async function verifyPassword(password: string, hashed: string): Promise<boolean> {
-  return bcrypt.compare(password, hashed)
-}
+// 브릿지: Phase 7에서 삭제
+export { cn } from '@/shared/lib/cn'
+export { hashPassword, verifyPassword } from '@/shared/lib/password'
+export { generateInviteCode } from '@/shared/lib/invite-code'

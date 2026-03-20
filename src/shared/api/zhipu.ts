@@ -44,8 +44,18 @@ function getConfig() {
   throw new Error('AI API가 설정되지 않았습니다. OLLAMA_API_URL, DEEPSEEK_API_KEY, 또는 ZHIPU_API_KEY를 설정하세요.')
 }
 
+const KOREAN_INSTRUCTION = '반드시 한국어로 응답하세요. 모든 설명, 분석, 판단 근거를 한국어로 작성하세요.'
+
 export async function chatWithZhipu(messages: ChatMessage[]): Promise<string> {
   const config = getConfig()
+
+  // system 메시지에 한국어 지시 주입
+  const processedMessages = messages.map((msg) => {
+    if (msg.role === 'system') {
+      return { ...msg, content: `${msg.content}\n\n${KOREAN_INSTRUCTION}` }
+    }
+    return msg
+  })
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -59,7 +69,7 @@ export async function chatWithZhipu(messages: ChatMessage[]): Promise<string> {
     headers,
     body: JSON.stringify({
       model: config.model,
-      messages,
+      messages: processedMessages,
       temperature: 0.7,
       max_tokens: 2000,
     }),

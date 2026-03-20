@@ -122,7 +122,7 @@ async function searchExternal(query: string, isKorean: boolean): Promise<SearchR
     promises.push(searchUPCitemDB(query).catch(() => []))
   }
 
-  // 내장 데이터에 결과가 없고 한글이면 AI 검색 시도
+  // 한글이고 내장 데이터에 결과가 없으면 AI 검색 시도
   if (isKorean && results.length === 0) {
     promises.push(searchWithAI(query).catch(() => []))
   }
@@ -134,6 +134,14 @@ async function searchExternal(query: string, isKorean: boolean): Promise<SearchR
   const existingNames = new Set(results.map((r) => r.name.toLowerCase()))
   const dedupedApi = apiFlat.filter((r) => !existingNames.has(r.name.toLowerCase()))
   results.push(...dedupedApi)
+
+  // 영문이고 외부 API 결과가 부족하면 AI 폴백 검색
+  if (!isKorean && results.length < 3) {
+    const aiResults = await searchWithAI(query).catch(() => [])
+    const allNames = new Set(results.map((r) => r.name.toLowerCase()))
+    const newAiResults = aiResults.filter((r) => !allNames.has(r.name.toLowerCase()))
+    results.push(...newAiResults)
+  }
 
   return results
 }

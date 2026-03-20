@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/shared/lib/prisma'
 import { auth } from '@/shared/lib/auth'
 import { chatWithZhipu, DISCLAIMER } from '@/shared/api/zhipu'
+import { getUserAiProvider } from '@/shared/lib/get-user-ai-provider'
 import { SAJU_SYSTEM_PROMPT } from '@/features/saju/lib/prompts/saju-analysis'
 import { buildHealthAnalysisPrompt } from '@/shared/lib/health-prompt'
 import { calculateSaju, formatSajuForPrompt } from '@/features/saju/lib/saju'
@@ -95,13 +96,14 @@ export async function POST(request: NextRequest) {
       userPrompt += '\n위 사주팔자를 분석하여 건강 체질 분석을 해주세요.'
     }
 
-    // Zhipu AI 호출
+    // AI 호출 (사용자 선택 프로바이더)
+    const aiProvider = await getUserAiProvider()
     let aiResponse: string
     try {
       aiResponse = await chatWithZhipu([
         { role: 'system', content: SAJU_SYSTEM_PROMPT },
         { role: 'user', content: userPrompt },
-      ])
+      ], aiProvider)
     } catch {
       return NextResponse.json(
         { error: '분석을 일시적으로 수행할 수 없습니다' },

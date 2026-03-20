@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/shared/lib/prisma'
 import { auth } from '@/shared/lib/auth'
 import { chatWithZhipu, DISCLAIMER } from '@/shared/api/zhipu'
+import { getUserAiProvider } from '@/shared/lib/get-user-ai-provider'
 import {
   HEALTH_SYSTEM_PROMPT,
   SUPPLEMENT_SYSTEM_PROMPT,
@@ -167,13 +168,14 @@ export async function POST(request: NextRequest) {
       userPrompt = `## 종합 분석 요청\n현재 계절: ${seasonInfo.season} (${seasonInfo.month}월)\n\n다음 항목을 모두 포함하여 종합적으로 분석해주세요:\n1. 건강 위험도 평가\n2. 영양 상태 분석\n3. 운동 권장사항\n4. 계절별 건강 관리\n5. 데이터 간 상관관계\n\n${userPrompt}`
     }
 
-    // Zhipu AI 호출
+    // AI 호출 (사용자 선택 프로바이더)
+    const aiProvider = await getUserAiProvider()
     let aiResponse: string
     try {
       aiResponse = await chatWithZhipu([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
-      ])
+      ], aiProvider)
     } catch {
       return NextResponse.json(
         { error: '분석을 일시적으로 수행할 수 없습니다' },

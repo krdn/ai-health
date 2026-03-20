@@ -28,6 +28,7 @@ export function ProfileForm() {
       .then((r) => r.json())
       .then((data) => {
         const user = data.user
+        if (!user) return
         setProfile(user)
         if (user.birthDate) {
           setBirthDate(new Date(user.birthDate).toISOString().slice(0, 10))
@@ -36,6 +37,7 @@ export function ProfileForm() {
         if (user.birthCalendarType) setBirthCalendarType(user.birthCalendarType)
         if (user.gender) setGender(user.gender)
       })
+      .catch(() => {})
   }, [])
 
   const handleSave = async () => {

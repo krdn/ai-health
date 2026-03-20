@@ -20,6 +20,7 @@ export async function GET() {
         birthTime: true,
         birthCalendarType: true,
         gender: true,
+        preferredAiProvider: true,
       },
     })
 
@@ -45,11 +46,12 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { birthDate, birthTime, birthCalendarType, gender } = body as {
+    const { birthDate, birthTime, birthCalendarType, gender, preferredAiProvider } = body as {
       birthDate?: string
       birthTime?: string
       birthCalendarType?: 'SOLAR' | 'LUNAR'
       gender?: 'MALE' | 'FEMALE'
+      preferredAiProvider?: string | null
     }
 
     // 업데이트할 필드만 구성
@@ -86,6 +88,9 @@ export async function PATCH(request: NextRequest) {
       }
       updateData.gender = gender || null
     }
+    if (preferredAiProvider !== undefined) {
+      updateData.preferredAiProvider = preferredAiProvider || null
+    }
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
@@ -105,6 +110,7 @@ export async function PATCH(request: NextRequest) {
         birthTime: true,
         birthCalendarType: true,
         gender: true,
+        preferredAiProvider: true,
       },
     })
 

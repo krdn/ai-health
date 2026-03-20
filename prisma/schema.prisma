@@ -91,6 +91,7 @@ model User {
   birthTime         String?
   birthCalendarType CalendarType? @default(SOLAR)
   gender            Gender?
+  preferredAiProvider String?
   familyId          String
   family            Family        @relation(fields: [familyId], references: [id])
   createdAt         DateTime      @default(now())

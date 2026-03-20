@@ -5,6 +5,7 @@ import { PDFParse } from 'pdf-parse'
 import { prisma } from '@/shared/lib/prisma'
 import { auth } from '@/shared/lib/auth'
 import { chatWithZhipu } from '@/shared/api/zhipu'
+import { getUserAiProvider } from '@/shared/lib/get-user-ai-provider'
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20MB
 
@@ -90,10 +91,11 @@ export async function POST(request: NextRequest) {
     let summary: string | null = null
 
     try {
+      const aiProvider = await getUserAiProvider()
       const aiResponse = await chatWithZhipu([
         { role: 'system', content: CHECKUP_SYSTEM_PROMPT },
         { role: 'user', content: `다음은 건강검진 PDF에서 추출된 텍스트입니다:\n\n${pdfText.slice(0, 8000)}` },
-      ])
+      ], aiProvider)
 
       const parts = aiResponse.split('---SUMMARY---')
       if (parts.length >= 2) {

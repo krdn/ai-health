@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/shared/lib/prisma'
 import { auth } from '@/shared/lib/auth'
 import { chatWithZhipu } from '@/shared/api/zhipu'
+import { getUserAiProvider } from '@/shared/lib/get-user-ai-provider'
 import { searchKoreanDrugs } from '@/features/supplements/lib/korean-drugs'
 
 interface OpenFDAResult {
@@ -214,10 +215,11 @@ async function searchWithAI(query: string): Promise<SearchResult[]> {
 - 존재하지 않는 제품을 만들어내지 마세요
 - JSON 배열만 출력하세요`
 
+  const aiProvider = await getUserAiProvider()
   const response = await chatWithZhipu([
     { role: 'system', content: '당신은 한국 의약품 데이터베이스입니다. JSON만 출력합니다.' },
     { role: 'user', content: prompt },
-  ])
+  ], aiProvider)
 
   let items: { name: string; category?: string; manufacturer?: string; ingredients?: string }[]
   try {

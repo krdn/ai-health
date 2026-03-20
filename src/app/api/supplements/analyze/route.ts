@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { prisma } from '@/shared/lib/prisma'
 import { auth } from '@/shared/lib/auth'
 import { chatWithZhipu, DISCLAIMER } from '@/shared/api/zhipu'
+import { getUserAiProvider } from '@/shared/lib/get-user-ai-provider'
 import { INGREDIENT_ANALYSIS_PROMPT, MEMBER_SUITABILITY_PROMPT } from '@/features/supplements/lib/prompts'
 import { DAILY_LIMIT, getTodayStartKST } from '@/shared/config/constants'
 
@@ -78,12 +79,13 @@ async function handleIngredientAnalysis(
 
   const userPrompt = `약품명: ${supplement.name}\n분류: ${categoryLabels[supplement.category] || supplement.category}`
 
+  const aiProvider = await getUserAiProvider()
   let aiResponse: string
   try {
     aiResponse = await chatWithZhipu([
       { role: 'system', content: INGREDIENT_ANALYSIS_PROMPT },
       { role: 'user', content: userPrompt },
-    ])
+    ], aiProvider)
   } catch {
     return NextResponse.json(
       { error: 'AI 분석을 일시적으로 수행할 수 없습니다' },
@@ -190,12 +192,13 @@ ${p.recentSymptoms || '없음'}
 ${p.recentVitals || '없음'}
 `).join('\n')}`
 
+  const aiProvider = await getUserAiProvider()
   let aiResponse: string
   try {
     aiResponse = await chatWithZhipu([
       { role: 'system', content: MEMBER_SUITABILITY_PROMPT },
       { role: 'user', content: userPrompt },
-    ])
+    ], aiProvider)
   } catch {
     return NextResponse.json(
       { error: 'AI 분석을 일시적으로 수행할 수 없습니다' },

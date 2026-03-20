@@ -11,6 +11,7 @@ import {
   NUTRITION_ANALYSIS_SYSTEM_PROMPT,
   CORRELATION_SYSTEM_PROMPT,
 } from '@/features/insight/lib/prompts'
+import { SUPPLEMENT_INTERACTION_SYSTEM_PROMPT } from '@/features/supplements/lib/prompts'
 import { buildHealthAnalysisPrompt } from '@/shared/lib/health-prompt'
 import { DAILY_LIMIT, getTodayStartKST } from '@/shared/config/constants'
 import type { InsightType, HealthRecordType } from '@/generated/prisma/client'
@@ -27,6 +28,7 @@ const systemPromptMap: Partial<Record<InsightType, string>> = {
   SEASONAL: HEALTH_SYSTEM_PROMPT, // 계절 분석은 건강 프롬프트 + 계절 컨텍스트
   FAMILY_PATTERN: HEALTH_SYSTEM_PROMPT, // 가족 패턴은 건강 프롬프트 + 가족 데이터
   COMBINED: HEALTH_SYSTEM_PROMPT, // 종합 분석
+  SUPPLEMENT_INTERACTION: SUPPLEMENT_INTERACTION_SYSTEM_PROMPT,
 }
 
 // 인사이트 타입별 관련 건강 기록 타입 매핑
@@ -41,6 +43,7 @@ const relevantRecordTypes: Partial<Record<InsightType, HealthRecordType[]>> = {
   SEASONAL: ['BODY_MEASURE', 'VITAL_SIGN', 'ACTIVITY', 'SYMPTOM', 'MENTAL'],
   FAMILY_PATTERN: ['BODY_MEASURE', 'VITAL_SIGN', 'ACTIVITY', 'MEDICATION', 'NUTRITION', 'SYMPTOM', 'MENTAL'],
   COMBINED: ['BODY_MEASURE', 'VITAL_SIGN', 'ACTIVITY', 'MEDICATION', 'NUTRITION', 'SYMPTOM', 'MENTAL'],
+  SUPPLEMENT_INTERACTION: ['MEDICATION', 'VITAL_SIGN', 'SYMPTOM'],
 }
 
 // 현재 계절 정보 반환

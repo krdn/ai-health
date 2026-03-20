@@ -35,6 +35,14 @@ enum InsightType {
   SEASONAL
   FAMILY_PATTERN
   COMBINED
+  SUPPLEMENT_INTERACTION
+}
+
+enum SupplementCategory {
+  PRESCRIPTION
+  OTC
+  SUPPLEMENT
+  HERB
 }
 
 enum HealthRecordType {
@@ -65,11 +73,12 @@ enum GoalStatus {
 }
 
 model Family {
-  id         String   @id @default(cuid())
-  name       String
-  inviteCode String   @unique
-  createdAt  DateTime @default(now())
-  members    User[]
+  id          String              @id @default(cuid())
+  name        String
+  inviteCode  String              @unique
+  createdAt   DateTime            @default(now())
+  members     User[]
+  supplements FamilySupplement[]
 }
 
 model User {
@@ -86,10 +95,11 @@ model User {
   family            Family        @relation(fields: [familyId], references: [id])
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
-  healthRecords     HealthRecord[]
-  insights          InsightHistory[]
-  checkups          CheckupRecord[]
-  goals             HealthGoal[]
+  healthRecords      HealthRecord[]
+  insights           InsightHistory[]
+  checkups           CheckupRecord[]
+  goals              HealthGoal[]
+  createdSupplements FamilySupplement[] @relation("SupplementCreator")
 }
 
 model HealthRecord {
@@ -153,4 +163,24 @@ model HealthGoal {
   updatedAt    DateTime     @updatedAt
 
   @@index([userId, status])
+}
+
+model FamilySupplement {
+  id            String             @id @default(cuid())
+  familyId      String
+  family        Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  name          String
+  category      SupplementCategory
+  dosage        String?
+  frequency     String?
+  notes         String?
+  ingredients   Json?
+  warnings      Json?
+  aiAnalyzedAt  DateTime?
+  createdBy     String
+  creator       User               @relation("SupplementCreator", fields: [createdBy], references: [id])
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([familyId])
 }

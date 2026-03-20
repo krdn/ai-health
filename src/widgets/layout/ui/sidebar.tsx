@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/shared/lib/cn'
 import {
   LayoutDashboard, ClipboardList, Pill, FileText, Brain, Compass,
-  Target, Activity, Utensils, Heart, Clock, Settings,
+  Target, Activity, Utensils, Heart, Clock, Settings, Package,
 } from 'lucide-react'
 
 const navItems = [
@@ -13,6 +13,7 @@ const navItems = [
   { href: '/records', label: '건강 기록', icon: ClipboardList },
   { href: '/nutrition', label: '식단 관리', icon: Utensils },
   { href: '/medications', label: '복용약/보조제', icon: Pill },
+  { href: '/supplements', label: '가족 약품 관리', icon: Package },
   { href: '/symptoms', label: '증상 기록', icon: Heart },
   { href: '/mental', label: '정신 건강', icon: Brain },
   { href: '/checkup', label: '건강검진', icon: FileText },

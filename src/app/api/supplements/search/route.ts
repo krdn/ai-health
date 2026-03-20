@@ -115,10 +115,11 @@ async function searchExternal(query: string, isKorean: boolean): Promise<SearchR
     promises.push(searchKFDA(query, kfdaKey).catch(() => []))
   }
 
-  // 영문이면 NIH DSLD + OpenFDA 병렬 검색
+  // 영문이면 NIH DSLD + OpenFDA + UPCitemDB 병렬 검색
   if (!isKorean) {
     promises.push(searchDSLD(query).catch(() => []))
     promises.push(searchOpenFDA(query).catch(() => []))
+    promises.push(searchUPCitemDB(query).catch(() => []))
   }
 
   // 내장 데이터에 결과가 없고 한글이면 AI 검색 시도
@@ -275,6 +276,48 @@ async function searchKFDA(query: string, apiKey: string): Promise<SearchResult[]
     ].filter(Boolean).join(' | ').replace(/<[^>]*>/g, '').slice(0, 200),
     source: 'kfda' as const,
   }))
+}
+
+// UPCitemDB 검색 (바코드 기반 제품 DB - 소규모 브랜드 보조제 커버리지 높음)
+async function searchUPCitemDB(query: string): Promise<SearchResult[]> {
+  const searchTerm = encodeURIComponent(query)
+  const url = `https://api.upcitemdb.com/prod/trial/search?s=${searchTerm}&match_mode=0&type=product`
+
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(5000),
+    headers: { 'Accept': 'application/json' },
+  })
+  if (!res.ok) return []
+
+  const data = await res.json()
+
+  interface UPCItem {
+    title?: string
+    brand?: string
+    description?: string
+    category?: string
+  }
+  const items: UPCItem[] = data?.items || []
+
+  // 보조제 관련 키워드 필터 (음식, 전자제품 등 무관한 결과 제외)
+  const supplementKeywords = [
+    'supplement', 'vitamin', 'mineral', 'capsule', 'tablet', 'softgel',
+    'nutrition', 'health', 'mg', 'mcg', 'iu',
+  ]
+
+  return items
+    .filter((item) => {
+      const text = `${item.title} ${item.description} ${item.category}`.toLowerCase()
+      return supplementKeywords.some((kw) => text.includes(kw))
+    })
+    .slice(0, 5)
+    .map((item) => ({
+      name: item.title || query,
+      category: 'SUPPLEMENT' as const,
+      manufacturer: item.brand,
+      ingredients: item.description?.slice(0, 200),
+      source: 'openfda' as const, // UI에서 별도 소스 표시가 없으므로 기존 타입 재사용
+    }))
 }
 
 // OpenFDA 약품 검색

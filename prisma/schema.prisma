@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum CalendarType {
+  SOLAR
+  LUNAR
+}
+
+enum InsightType {
+  HEALTH
+  SAJU
+  CHECKUP
+  SUPPLEMENT_REC
+  SIDE_EFFECT
+  RISK_ASSESSMENT
+  EXERCISE_RX
+  NUTRITION_ANALYSIS
+  CORRELATION
+  SEASONAL
+  FAMILY_PATTERN
+  COMBINED
+  SUPPLEMENT_INTERACTION
+}
+
+enum SupplementCategory {
+  PRESCRIPTION
+  OTC
+  SUPPLEMENT
+  HERB
+}
+
+enum HealthRecordType {
+  BODY_MEASURE
+  VITAL_SIGN
+  ACTIVITY
+  MEDICATION
+  NUTRITION
+  SYMPTOM
+  MENTAL
+}
+
+enum GoalCategory {
+  WEIGHT_LOSS
+  WEIGHT_GAIN
+  BLOOD_PRESSURE
+  BLOOD_SUGAR
+  EXERCISE_FREQ
+  SLEEP
+  STEPS
+  CUSTOM
+}
+
+enum GoalStatus {
+  ACTIVE
+  ACHIEVED
+  ABANDONED
+}
+
+model Family {
+  id          String              @id @default(cuid())
+  name        String
+  inviteCode  String              @unique
+  createdAt   DateTime            @default(now())
+  members     User[]
+  supplements FamilySupplement[]
+}
+
+model User {
+  id                String        @id @default(cuid())
+  email             String        @unique
+  password          String
+  name              String
+  role              Role          @default(MEMBER)
+  birthDate         DateTime?
+  birthTime         String?
+  birthCalendarType CalendarType? @default(SOLAR)
+  gender            Gender?
+  preferredAiProvider String?
+  familyId          String
+  family            Family        @relation(fields: [familyId], references: [id])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  healthRecords      HealthRecord[]
+  insights           InsightHistory[]
+  checkups           CheckupRecord[]
+  goals              HealthGoal[]
+  createdSupplements FamilySupplement[] @relation("SupplementCreator")
+}
+
+model HealthRecord {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       HealthRecordType
+  data       Json
+  recordedAt DateTime
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([userId, type])
+  @@index([userId, recordedAt])
+}
+
+model InsightHistory {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      InsightType
+  prompt    String
+  response  String
+  fromDate  DateTime?
+  toDate    DateTime?
+  createdAt DateTime    @default(now())
+
+  @@index([userId, type])
+  @@index([userId, createdAt])
+}
+
+model CheckupRecord {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName      String
+  filePath      String
+  fileSize      Int
+  checkupDate   DateTime
+  institution   String?
+  extractedData Json?
+  summary       String?
+  createdAt     DateTime @default(now())
+
+  @@index([userId, checkupDate])
+}
+
+model HealthGoal {
+  id           String       @id @default(cuid())
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category     GoalCategory
+  targetValue  Float
+  currentValue Float?
+  unit         String
+  description  String?
+  startDate    DateTime     @default(now())
+  targetDate   DateTime?
+  status       GoalStatus   @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([userId, status])
+}
+
+model FamilySupplement {
+  id            String             @id @default(cuid())
+  familyId      String
+  family        Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  name          String
+  category      SupplementCategory
+  dosage        String?
+  frequency     String?
+  notes         String?
+  ingredients   Json?
+  warnings      Json?
+  aiAnalyzedAt  DateTime?
+  createdBy     String
+  creator       User               @relation("SupplementCreator", fields: [createdBy], references: [id])
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([familyId])
+}
